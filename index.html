@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Empresa A | Almacenes HJ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #F5F5F5; color: #1a1a1a; }
+.page { max-width: 1300px; margin: 0 auto; padding: 24px 28px; }
+
+/* HEADER */
+.header { background: #CC0000; border-radius: 12px; padding: 0; margin-bottom: 18px; display: flex; overflow: hidden; }
+.header-stripe { background: #FFD700; width: 10px; flex-shrink: 0; }
+.header-body { padding: 18px 24px; flex: 1; display: flex; justify-content: space-between; align-items: center; }
+.header-left h1 { font-size: 19px; font-weight: 700; color: white; margin-bottom: 3px; }
+.header-left p { font-size: 11px; color: rgba(255,255,255,0.75); }
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.badge { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+.badge-white { background: white; color: #CC0000; }
+.badge-gold { background: #FFD700; color: #7A3D00; }
+
+/* KPI CARDS */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-row2 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi { background: white; border-radius: 10px; padding: 16px 18px; border-top: 4px solid #CC0000; }
+.kpi.gold { border-top-color: #FFD700; }
+.kpi.dark { border-top-color: #1a1a1a; }
+.kpi.green { border-top-color: #1D9E75; }
+.kpi-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; font-weight: 600; }
+.kpi-value { font-size: 21px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.kpi-delta { font-size: 11px; font-weight: 600; }
+.kpi-delta.up { color: #1D9E75; }
+.kpi-delta.neutral { color: #888; }
+
+/* CHARTS */
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px; }
+.charts-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.card { background: white; border-radius: 10px; padding: 18px 20px; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.card-title { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+.card-sub { font-size: 10px; color: #999; margin-top: 2px; }
+.card-badge { font-size: 10px; background: #FFF3CD; color: #7A3D00; padding: 3px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+.card-badge.red { background: #FFE5E5; color: #CC0000; }
+.card-badge.green { background: #D1FAE5; color: #065F46; }
+.legend { display: flex; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #666; }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* TABLA */
+.tabla-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+th { background: #CC0000; color: white; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11px; }
+th:first-child { border-radius: 6px 0 0 0; }
+th:last-child { border-radius: 0 6px 0 0; }
+td { padding: 8px 12px; border-bottom: 1px solid #F3F4F6; color: #333; }
+tr:nth-child(even) td { background: #FFF8F8; }
+tr:hover td { background: #FFF3CD; }
+.tag { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.tag-up { background: #D1FAE5; color: #065F46; }
+.tag-new { background: #FFD700; color: #7A3D00; }
+.tag-neutral { background: #F3F4F6; color: #555; }
+
+/* BARRA PROGRESO */
+.progress-wrap { margin-top: 6px; }
+.progress-bar { height: 6px; background: #F3F4F6; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-fill { height: 100%; border-radius: 3px; }
+
+/* FOOTER */
+.footer { text-align: center; font-size: 10px; color: #aaa; margin-top: 10px; padding: 10px; border-top: 2px solid #FFD700; }
+.footer span { color: #CC0000; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-stripe"></div>
+    <div class="header-body">
+      <div class="header-left">
+        <h1>Empresa A — Panel de rendimiento e-commerce</h1>
+        <p>Canal online únicamente · Shopify · Google Analytics 4 · Meta Business Suite · Klaviyo</p>
+      </div>
+      <div class="header-right">
+        <div class="badge badge-white">Datos hasta marzo 2026</div>
+        <div class="badge badge-gold">Elaboración propia · TFG UCAM 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs FILA 1 -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Ventas 2025</div>
+      <div class="kpi-value">74,9M COP</div>
+      <div class="kpi-delta up">↑ +131,8% vs 2024</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-label">Ventas Q1 2026</div>
+      <div class="kpi-value">45,3M COP</div>
+      <div class="kpi-delta up">↑ Feb récord: 23,1M</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">ROAS Q1 2026</div>
+      <div class="kpi-value">10,07x</div>
+      <div class="kpi-delta up">↑ desde 1,35x en 2024</div>
+    </div>
+    <div class="kpi dark">
+      <div class="kpi-label">Pedidos 2025</div>
+      <div class="kpi-value">121 pedidos</div>
+      <div class="kpi-delta up">↑ +120% vs 55 en 2024</div>
+    </div>
+  </div>
+
+  <!-- KPIs FILA 2 -->
+  <div class="kpi-row2">
+    <div class="kpi">
+      <div class="kpi-label">CAC Q1 2026</div>
+      <div class="kpi-value">107.143 COP</div>
+      <div class="kpi-delta up">↓ −76,3% vs 452.830 (2024)</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-label">Catálogo activo</div>
+      <div class="kpi-value">506 productos</div>
+      <div class="kpi-delta up">↑ +837% desde 54 en 2024</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Revenue Klaviyo</div>
+      <div class="kpi-value">4.800.751 COP</div>
+      <div class="kpi-delta up">↑ Canal nuevo en 2025</div>
+    </div>
+    <div class="kpi dark">
+      <div class="kpi-label">Inversión publicitaria</div>
+      <div class="kpi-value">1,5M COP/mes</div>
+      <div class="kpi-delta up">↓ −25% vs 2M en 2024</div>
+    </div>
+  </div>
+
+  <!-- FILA GRÁFICOS 1 -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Evolución de ventas mensuales</div><div class="card-sub">2024 vs 2025 · miles de COP</div></div>
+        <div class="card-badge green">+131,8% anual</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#CC0000"></div>2024</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FFD700"></div>2025</div>
+      </div>
+      <div style="position:relative;height:210px"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">ROAS — evolución</div><div class="card-sub">Retorno por cada COP invertido</div></div>
+        <div class="card-badge green">+646%</div>
+      </div>
+      <div style="position:relative;height:210px"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+
+  <!-- FILA GRÁFICOS 2 -->
+  <div class="charts-row2">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">CAC — coste por cliente</div><div class="card-sub">COP · evolución anual</div></div>
+        <div class="card-badge green">−76,3%</div>
+      </div>
+      <div style="position:relative;height:180px"><canvas id="c3"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Fuentes de tráfico</div><div class="card-sub">176.881 sesiones totales</div></div>
+        <div class="card-badge">54,3% orgánico</div>
+      </div>
+      <div style="position:relative;height:180px"><canvas id="c4"></canvas></div>
+      <div style="margin-top:10px">
+        <div style="font-size:10px;color:#666;display:flex;justify-content:space-between;margin-bottom:3px"><span>Orgánico</span><span style="font-weight:700;color:#1D9E75">54,3%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:54.3%;background:#1D9E75"></div></div>
+        <div style="font-size:10px;color:#666;display:flex;justify-content:space-between;margin:5px 0 3px"><span>Pago</span><span style="font-weight:700;color:#CC0000">31,0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:31%;background:#CC0000"></div></div>
+        <div style="font-size:10px;color:#666;display:flex;justify-content:space-between;margin:5px 0 3px"><span>Directo</span><span style="font-weight:700;color:#888">10,4%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:10.4%;background:#888"></div></div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- TABLA RESUMEN -->
+  <div class="tabla-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="card-title" style="font-size:13px">Indicadores clave — comparativa pre/post intervención</div>
+      <div class="badge" style="background:#CC0000;color:white;font-size:10px">Canal e-commerce únicamente</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Indicador</th>
+          <th>Baseline 2024</th>
+          <th>2025</th>
+          <th>Q1 2026</th>
+          <th>Variación 2024→2025</th>
+          <th>Variación 2024→Q1 2026</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Ventas canal online</strong></td><td>32.359.751 COP</td><td>74.995.246 COP</td><td>45.314.751 COP</td><td><span class="tag tag-up">+131,8%</span></td><td><span class="tag tag-up">Récord feb: 23,1M</span></td></tr>
+        <tr><td><strong>Pedidos</strong></td><td>55</td><td>121</td><td>44</td><td><span class="tag tag-up">+120,0%</span></td><td>44 en solo 3 meses</td></tr>
+        <tr><td><strong>CAC</strong></td><td>452.830 COP (~104 €)</td><td>168.224 COP (~39 €)</td><td>107.143 COP (~25 €)</td><td><span class="tag tag-up">−62,9%</span></td><td><span class="tag tag-up">−76,3%</span></td></tr>
+        <tr><td><strong>ROAS</strong></td><td>1,35:1</td><td>4,17:1</td><td>10,07:1</td><td><span class="tag tag-up">+209%</span></td><td><span class="tag tag-up">+646%</span></td></tr>
+        <tr><td><strong>Inversión publicitaria</strong></td><td>2.000.000 COP/mes</td><td>1.500.000 COP/mes</td><td>1.500.000 COP/mes</td><td><span class="tag tag-up">−25%</span></td><td><span class="tag tag-up">−25%</span></td></tr>
+        <tr><td><strong>Catálogo publicado</strong></td><td>54 productos</td><td>506 productos</td><td>506 productos</td><td><span class="tag tag-up">+837%</span></td><td><span class="tag tag-up">+837%</span></td></tr>
+        <tr><td><strong>Sesiones web</strong></td><td>64.631</td><td>80.204</td><td>—</td><td><span class="tag tag-up">+24,1%</span></td><td>—</td></tr>
+        <tr><td><strong>% Tráfico orgánico</strong></td><td>28,7%</td><td>33,2%</td><td>36,8%</td><td><span class="tag tag-up">+4,5 pp</span></td><td><span class="tag tag-up">+8,1 pp</span></td></tr>
+        <tr><td><strong>Revenue email Klaviyo</strong></td><td>— (sistema inexistente)</td><td>4.800.751 COP</td><td>—</td><td><span class="tag tag-new">Canal nuevo</span></td><td>—</td></tr>
+        <tr><td><strong>Emails enviados</strong></td><td>—</td><td>14.668</td><td>—</td><td><span class="tag tag-new">Canal nuevo</span></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>Empresa A</span> · Elaboración propia a partir de datos exportados de Shopify, Google Analytics 4, Meta Business Suite y Klaviyo ·
+    Tipo de cambio fijo: 4.350 COP/€ · Canal e-commerce únicamente · Datos hasta marzo 2026 · TFG UCAM 2026
+  </div>
+
+</div>
+
+<script>
+const g = '#F0F0F0'; const t = '#888';
+const base = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: g }, ticks: { color: t, font: { size: 10 } } },
+    y: { grid: { color: g }, ticks: { color: t, font: { size: 10 } } }
+  }
+};
+
+// C1 ventas mensuales
+new Chart(document.getElementById('c1'), {
+  type: 'bar',
+  data: {
+    labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    datasets: [
+      { label: '2024', data: [0,0,0,2202,8265,6330,560,4047,3659,3887,760,2650],
+        backgroundColor: 'rgba(204,0,0,0.75)', borderRadius: 4, borderSkipped: false },
+      { label: '2025', data: [9203,8502,5790,10314,8255,3756,5488,5181,3313,2543,5971,6680],
+        backgroundColor: 'rgba(255,215,0,0.9)', borderRadius: 4, borderSkipped: false }
+    ]
+  },
+  options: { ...base, scales: { ...base.scales,
+    y: { ...base.scales.y, ticks: { ...base.scales.y.ticks,
+      callback: v => v===0?'0':(v/1000).toFixed(0)+'K' } } } }
+});
+
+// C2 ROAS
+new Chart(document.getElementById('c2'), {
+  type: 'line',
+  data: {
+    labels: ['2024','2025','Q1 2026'],
+    datasets: [{
+      data: [1.35, 4.17, 10.07],
+      borderColor: '#CC0000', backgroundColor: 'rgba(204,0,0,0.08)',
+      tension: 0.4, pointRadius: 7, pointBackgroundColor: '#CC0000',
+      fill: true, borderWidth: 3,
+      pointStyle: 'circle', pointHoverRadius: 9
+    }]
+  },
+  options: { ...base, scales: { ...base.scales,
+    y: { ...base.scales.y, min: 0, max: 12,
+      ticks: { ...base.scales.y.ticks, callback: v => v+'x' } } } }
+});
+
+// C3 CAC
+new Chart(document.getElementById('c3'), {
+  type: 'bar',
+  data: {
+    labels: ['2024','2025','Q1 2026'],
+    datasets: [{
+      data: [452830, 168224, 107143],
+      backgroundColor: ['rgba(204,0,0,0.8)','rgba(255,215,0,0.85)','rgba(29,158,117,0.85)'],
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: { ...base, scales: { ...base.scales,
+    y: { ...base.scales.y, ticks: { ...base.scales.y.ticks,
+      callback: v => (v/1000).toFixed(0)+'K' } } } }
+});
+
+// C4 Fuentes tráfico
+new Chart(document.getElementById('c4'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Orgánico','Pago','Directo','Otros'],
+    datasets: [{ data: [54.3, 31.0, 10.4, 4.3],
+      backgroundColor: ['#1D9E75','#CC0000','#888','#FFD700'],
+      borderWidth: 2, borderColor: '#fff', hoverOffset: 5 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '60%',
+    plugins: { legend: { display: false } } }
+});
+
+</script>
+</body>
+</html>
